@@ -40,12 +40,16 @@ h1{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0;color:va
 .hright{display:flex;align-items:center;gap:8px}
 .date{color:var(--muted);font-size:.85rem}
 .snd{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:5px 10px;font:600 .75rem var(--body);cursor:pointer}
-.tagline{margin:-10px 0 0;font-family:var(--display);font-size:1.02rem;color:var(--ring);text-align:center;text-wrap:balance}
+.topbar{position:sticky;top:0;z-index:5;display:flex;flex-direction:column;gap:8px;
+  margin:calc(-20px - env(safe-area-inset-top,0px)) -16px 0;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 12px;
+  background:var(--bg);transition:box-shadow .2s}
+.topbar.stuck{box-shadow:0 1px 0 var(--line),0 8px 16px -12px #00000040}
+.tagline{margin:0;font-family:var(--display);font-size:1.02rem;color:var(--ring);text-align:center;text-wrap:balance}
 
 .tapzone{display:flex;flex-direction:column;align-items:center;gap:14px;padding-block:8px}
-.ringwrap{width:min(66vw,250px);aspect-ratio:1;max-width:100%;border-radius:50%;padding:9px;
-  background:conic-gradient(var(--ring) calc(var(--t,0)*360deg), var(--line) 0);position:relative;transition:background .2s}
-.tap{width:100%;height:100%;border-radius:50%;border:0;cursor:pointer;position:relative;overflow:hidden;
+.ringwrap{--size:min(66vw,250px);width:var(--size);height:var(--size);min-width:var(--size);min-height:var(--size);flex:none;
+  border-radius:50%;position:relative;background:conic-gradient(var(--ring) calc(var(--t,0)*360deg), var(--line) 0);transition:background .2s}
+.tap{position:absolute;top:9px;right:9px;bottom:9px;left:9px;width:auto;height:auto;margin:0;padding:0;border-radius:50%;border:0;cursor:pointer;overflow:hidden;-webkit-appearance:none;appearance:none;
   background:var(--btn,var(--c0));color:var(--btnfg,var(--fg));box-shadow:0 0 0 5px var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   font-family:var(--display);transition:background .18s,color .18s,transform .07s;user-select:none;-webkit-user-select:none;touch-action:manipulation}
@@ -146,14 +150,16 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 </div>
 
 <div class="wrap" id="wrap" hidden>
-  <header>
-    <h1>싸움 잔디</h1>
-    <div class="hright">
-      <span class="date" id="selDate"></span>
-      <button class="snd" id="snd" aria-pressed="true">소리 켬</button>
-    </div>
-  </header>
-  <p class="tagline">고마워, 니덕분에 내 세상은 온통 초록이야</p>
+  <div class="topbar" id="topbar">
+    <header>
+      <h1>싸움 잔디</h1>
+      <div class="hright">
+        <span class="date" id="selDate"></span>
+        <button class="snd" id="snd" aria-pressed="true">소리 켬</button>
+      </div>
+    </header>
+    <p class="tagline">고마워, 니덕분에 내 세상은 온통 초록이야</p>
+  </div>
 
   <section class="tapzone">
     <div class="ringwrap" id="ringwrap">
@@ -519,6 +525,9 @@ try{ Object.assign(days, JSON.parse(localStorage.getItem(LOCAL_KEY)||"{}")); }ca
 try{ if(localStorage.getItem("fight-sound")==="0"){ soundOn=false; $("snd").textContent="소리 끔"; $("snd").setAttribute("aria-pressed","false"); } }catch(e){}
 try{ navigator.storage?.persist?.(); }catch(e){}
 loadVoices().then(()=>{ ready() ? showMain() : showSetup(); });
+
+/* soft divider under the fixed top bar once the page scrolls */
+addEventListener("scroll",()=>{ $("topbar").classList.toggle("stuck", scrollY>4); },{passive:true});
 
 let lastDay=todayKey();
 setInterval(()=>{ const t=todayKey(); if(t!==lastDay){ if(sel===lastDay) sel=t; lastDay=t; if(!$("wrap").hidden) renderAll(); } },60000);
