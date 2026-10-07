@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>싸움 잔디</title>
+<meta name="description" content="고마워, 니덕분에 내 세상은 온통 초록이야">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="싸움 잔디">
+<meta property="og:title" content="싸움 잔디">
+<meta property="og:description" content="고마워, 니덕분에 내 세상은 온통 초록이야">
+<meta property="og:url" content="https://fightgrass.github.io/fight-grass/">
+<meta property="og:image" content="https://fightgrass.github.io/fight-grass/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f5f9f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1611" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -183,16 +193,16 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
   <section class="tapzone">
     <div class="ringwrap" id="ringwrap">
-      <button class="tap" id="tap" aria-label="싸움 기록 1회 추가">
+      <button class="tap" id="tap" aria-label="빡침 한 단계 올리기">
         <span class="n" id="cnt">0</span>
         <span class="l" id="tapLabel">톡 누르기</span>
       </button>
     </div>
     <div class="mood" id="mood">평화로운 날</div>
-    <div class="meter" id="meter">진하기 0%</div>
+    <div class="meter" id="meter">빡침 지수 0%</div>
     <div class="madebadge" id="madeBadge" hidden>💗 화해 완료</div>
     <div class="row">
-      <button class="ghost" id="minus">한 번 취소</button>
+      <button class="ghost" id="minus">한 단계 내리기</button>
       <button class="make" id="make" disabled>화해했어</button>
       <button class="ghost" id="today" hidden>오늘로 돌아가기</button>
     </div>
@@ -215,7 +225,7 @@ button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
   <section class="stats">
     <div class="stat"><b id="sPeace">–</b><span>평화 연속(일)</span></div>
     <div class="stat"><b id="sDays">0</b><span>이번 달 싸운 날</span></div>
-    <div class="stat"><b id="sTotal">0</b><span>이번 달 총 횟수</span></div>
+    <div class="stat"><b id="sTotal">0</b><span>이번 달 최고 빡침</span></div>
   </section>
   <p class="foot">기록과 목소리는 이 폰에만 저장돼요</p>
   <button class="voicelink" id="editVoices">목소리 다시 녹음하기</button>
@@ -270,7 +280,7 @@ function renderPanel(){
   $("cnt").textContent = c;
   $("tapLabel").textContent = c>=MAX ? "최대치!" : c ? "한 번 더?" : "톡 누르기";
   $("mood").textContent = moodOf(c);
-  $("meter").textContent = `진하기 ${Math.round(t*100)}%`;
+  $("meter").textContent = `빡침 지수 ${Math.round(t*100)}%`;
   $("minus").disabled = c===0;
   const isMade = c>0 && !!made[sel];
   $("make").disabled = c===0;
@@ -303,7 +313,7 @@ function renderGrid(){
       b.className = "cell"+(day>now?" fut":"")+(k===sel?" sel":"")+(c>0&&made[k]?" made":"")+(notes[k]?" memo":"");
       if(c>0) b.style.background = colorOf(c);
       b.dataset.k = k;
-      b.setAttribute("aria-label", `${day.getMonth()+1}월 ${day.getDate()}일, ${c}번`+(c>0&&made[k]?", 화해함":"")+(notes[k]?", 메모 "+notes[k]:""));
+      b.setAttribute("aria-label", `${day.getMonth()+1}월 ${day.getDate()}일, `+(c?`빡침 ${Math.round(tOf(c)*100)}%`:"평화")+(c>0&&made[k]?", 화해함":"")+(notes[k]?", 메모 "+notes[k]:""));
       if(day>now) b.tabIndex=-1;
       col.appendChild(b);
     }
@@ -316,7 +326,7 @@ function renderDayInfo(){
   const [y,m,d]=sel.split("-").map(Number), c=days[sel]||0, el=$("dayinfo");
   el.replaceChildren();
   const head=document.createElement("b"); head.textContent=`${m}월 ${d}일`; el.appendChild(head);
-  let t = c ? ` · ${c}번 싸움` : " · 평화로운 날";
+  let t = c ? ` · 빡침 ${Math.round(tOf(c)*100)}% (${moodOf(c)})` : " · 평화로운 날";
   if(c && made[sel]) t += " · 💗 화해";
   el.appendChild(document.createTextNode(t));
   if(notes[sel]){ const q=document.createElement("span"); q.className="q"; q.textContent=` · “${notes[sel]}”`; el.appendChild(q); }
@@ -329,8 +339,8 @@ function renderStats(){
   if(last){ const [y,m,dd]=last.split("-").map(Number); streak = Math.round((now - new Date(y,m-1,dd))/86400000); }
   const ym = tk.slice(0,7);
   let dcount=0,total=0;
-  for(const k in days){ if(k.startsWith(ym) && days[k]>0){ dcount++; total+=days[k]; } }
-  $("sPeace").textContent = streak; $("sDays").textContent = dcount; $("sTotal").textContent = total;
+  for(const k in days){ if(k.startsWith(ym) && days[k]>0){ dcount++; total=Math.max(total,days[k]); } }
+  $("sPeace").textContent = streak; $("sDays").textContent = dcount; $("sTotal").textContent = total ? Math.round(tOf(total)*100)+"%" : "–";
 }
 function renderAll(){ renderPanel(); renderGrid(); renderStats(); }
 function saveDays(){
@@ -608,7 +618,7 @@ async function makeShot(){
       const day=new Date(first); day.setDate(first.getDate()+d);
       if(day>now) continue;
       const k=keyOf(day), c=days[k]||0, y=TOP+d*(CELL+GAP);
-      if(c>0){ fights+=c; fightDays++; }
+      if(c>0){ fights=Math.max(fights,c); fightDays++; }
       const col=colorOf(c); ctx.fillStyle = col.startsWith("var") ? v("--c0") : col;
       roundRect(0,ctx,x,y,CELL,CELL,4); ctx.fill();
       if(c>0 && made[k]){
@@ -617,7 +627,7 @@ async function makeShot(){
     }
   }
   const by=TOP+7*(CELL+GAP)+46;
-  const stats=[[fightDays+"일","싸운 날"],[fights+"번","총 싸움"],[makes+"번","화해"]];
+  const stats=[[fightDays+"일","싸운 날"],[(fights?Math.round(tOf(fights)*100):0)+"%","최고 빡침"],[makes+"번","화해"]];
   stats.forEach(([n,l],i)=>{
     const x=28+i*150;
     ctx.fillStyle=v("--fg"); ctx.font=`30px ${disp}`; ctx.fillText(n,x,by);
