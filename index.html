@@ -87,8 +87,7 @@ h1{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0;color:va
 .cell.fut{visibility:hidden}
 .cell.sel{outline:2px solid var(--fg);outline-offset:1px}
 .cell.made{box-shadow:0 0 0 2px var(--gold);position:relative}
-.cell.made::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--gold)}
-.cell.memo:not(.made)::after{content:"";position:absolute;right:1px;top:1px;width:3px;height:3px;border-radius:50%;background:var(--fg);opacity:.55}
+.cell.memo::after{content:"";position:absolute;right:1px;top:1px;width:3px;height:3px;border-radius:50%;background:var(--fg);opacity:.55}
 .cell{position:relative}
 .make{border:1px solid var(--gold);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 16px;font:600 .85rem var(--body);cursor:pointer}
 .make.on{background:var(--gold);color:#ffffff}
@@ -614,7 +613,6 @@ async function makeShot(){
       roundRect(0,ctx,x,y,CELL,CELL,4); ctx.fill();
       if(c>0 && made[k]){
         makes++; ctx.strokeStyle=v("--gold"); ctx.lineWidth=2; roundRect(0,ctx,x-1,y-1,CELL+2,CELL+2,5); ctx.stroke();
-        ctx.fillStyle=v("--gold"); ctx.beginPath(); ctx.arc(x+CELL/2,y+CELL/2,2.6,0,Math.PI*2); ctx.fill();
       }
     }
   }
